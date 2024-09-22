@@ -1,6 +1,6 @@
 import express from 'express';
-import { authenticationRouter } from './routers/authentication-router';
-import { getVariable } from './config/getVariables';
+import { authenticationRouter } from './routers/authentication-router.js';
+import { getVariable } from './config/getVariables.js';
 import bodyParser from 'body-parser';
 
 const port = getVariable('PORT');
@@ -14,5 +14,3 @@ app.use(authenticationRouter);
 app.listen(parseInt(port, 10), host, () => {
     console.log(`Server started at http://localhost:${port}`);
 });
-
-module.exports = app;

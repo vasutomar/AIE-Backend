@@ -1,10 +1,9 @@
-import { getVariable } from "./config/getVariables";
-import { getUser } from "./services/authentication-service";
-
-var jwt = require('jsonwebtoken');
+import { getVariable } from "../config/getVariables.js";
+import { getUser } from "../services/authentication-service.js";
+import jwt from 'jsonwebtoken';
 export function getJWTToken(data) {
     const salt = getVariable("SALT");
-    var token = jwt.sign(data, salt, { algorithm: 'HS256' });
+    var token = jwt.sign(data, salt, { algorithm: getVariable("JWTALGO") });
     return token;
 }
 

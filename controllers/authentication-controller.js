@@ -1,12 +1,11 @@
-import { User } from "../models/User";
 
 import {
     checkHealth,
     createUser,
     loginUser,
     verifySession
-} from "../services/authentication-service";
-import { handleServerError, prepareServerResponse } from "../utils/common-utils";
+} from "../services/authentication-service.js";
+import { handleServerError, prepareServerResponse } from "../utils/common-utils.js";
 
 export async function health(req, res) {
     const serverHealth = checkHealth();
@@ -18,8 +17,8 @@ export async function health(req, res) {
 export async function signup(req, res) {
     try {
         const body = req.body;
-        const createdUser = createUser(body);
-        res.send(prepareServerResponse(201, "User created", createdUser.userId));
+        const createdUser = await createUser(body);
+        res.send(prepareServerResponse(201, "User created", createdUser));
     } catch (err) {
         handleServerError(err, res);
     }
