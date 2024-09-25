@@ -27,7 +27,8 @@ export async function signup(req, res) {
 export async function signin(req, res) {
     try {
         const body = req.body;
-        const token = await loginUser(body);
+        const headers = req.headers;
+        const token = await loginUser(body.password, headers.authorization);
         if (token) {
             res.send(prepareServerResponse(200, "User logged in!", token));
         } else {

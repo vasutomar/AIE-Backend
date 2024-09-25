@@ -1,6 +1,11 @@
 import { v4 as uuidv4 } from "uuid";
 import { getVariable } from "../config/getVariables.js";
-import { getJWTToken, verifyToken } from "../utils/authentication-utils.js";
+import {
+  getJWTToken,
+  hashPassword,
+  verifyToken,
+  getUsername,
+} from "../utils/authentication-utils.js";
 import { createLogger } from "../utils/logger-utils.js";
 import mongo from "mongodb";
 
@@ -15,54 +20,89 @@ export function checkHealth() {
 
 export async function createUser(userData) {
   logger.info("createUser service : Start");
-  
-  const userId = uuidv4();
-  userData.userId = userId;
 
-  let createdUser = {};
+  const userId = uuidv4();
+  const { username, firstName, lastName, password } = userData;
+  userData.userId = userId;
   let jwtToken;
 
   const connectedClient = await mongoClient.connect(uri);
   if (!connectedClient) throw new Error("Cannot connect to mongodb");
 
   try {
+    logger.info("createUser service : MongoDB Connection established");
     const db = connectedClient.db(getVariable("DATABASE"));
-    let users = db.collection('USERS');
-    let storedUser = await users.findOne({ username: userData.username});
+    let users = db.collection("USERS");
+    let storedUser = await users.findOne({ username });
     if (!storedUser) {
       try {
+        logger.info("createUser service : Creating user");
+        const hashedPassword = hashPassword(password);
+        userData.password = hashedPassword;
         await users.insertOne(userData);
         jwtToken = getJWTToken({
-          username: userData.username,
-          firstName: userData.firstName,
-          lastName: userData.lastName
+          username,
+          firstName,
+          lastName,
         });
-
-      } catch(err) {
+      } catch (err) {
         throw err;
       }
     } else {
+      logger.info("createUser service : Username already present");
       throw new Error("Username already taken");
     }
-  } catch(err) {
+  } catch (err) {
     throw err;
   }
+  logger.info("createUser service : User signup completed");
   return jwtToken;
 }
 
-export async function loginUser(user) {
-  // try {
-  //   let token = '';
-  //   const userId = user.userId;
-  //   const password = user.password;
-  //   const fetchedUser = await getUser(userId);
-  //   if (fetchedUser.password === password) {
-  //     token = getJWTToken({ userId, password });
-  //   }
-  //   return token;
-  // } catch(err) {
-  //   throw Error('Error');
-  // }
+export async function loginUser(password, token) {
+  const username = await getUsername(token);
+  const hashedPassword = hashPassword(password);
+
+  const connectedClient = await mongoClient.connect(uri);
+  if (!connectedClient) throw new Error("Cannot connect to mongodb");
+
+  try {
+    logger.info("loginUser service : MongoDB Connection established");
+    const db = connectedClient.db(getVariable("DATABASE"));
+    let users = db.collection("USERS");
+    let storedUser = await users.findOne({ username });
+
+    var jwtToken = "";
+
+    if (!storedUser) {
+      logger.error("loginUser service : User not found");
+      throw new Error("User not found, Incorrect username");
+    } else {
+      try {
+        logger.info("loginUser service : User found");
+        let authenticatedUser = await users.findOne({
+          username,
+          password: hashedPassword,
+        });
+        if (authenticatedUser) {
+          jwtToken = getJWTToken({
+            username,
+            firstName: authenticatedUser.firstName,
+            lastName: authenticatedUser.lastName,
+          });
+          logger.info("loginUser service : Valid User");
+        } else {
+          throw new Error("loginUser service : Invalid password");
+        }
+      } catch (err) {
+        throw err;
+      }
+    }
+  } catch (err) {
+    throw err;
+  }
+  logger.info("loginUser service : User signin completed");
+  return jwtToken;
 }
 
 export async function getUser(userId) {
