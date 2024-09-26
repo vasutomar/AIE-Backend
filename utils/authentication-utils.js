@@ -1,5 +1,4 @@
 import { getVariable } from "../config/getVariables.js";
-import { getUser } from "../services/authentication-service.js";
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 
@@ -19,25 +18,6 @@ export async function verifyToken(token) {
             }
         });
         return isValid;
-    } catch(err) {
-        throw err;
-    }
-}
-
-export async function getRole(token) {
-    try {
-        const salt = getVariable("SALT");
-        let role = '';
-        jwt.verify(token, salt, async function (err, decoded) {
-            if (!err) {
-                const userId = decoded.userId;
-                const fetchedUser = await getUser(userId);
-                if (fetchedUser) {
-                    role = fetchedUser.role;
-                }
-            }
-        });
-        return role;
     } catch(err) {
         throw err;
     }

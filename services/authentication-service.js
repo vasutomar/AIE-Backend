@@ -105,20 +105,6 @@ export async function loginUser(password, token) {
   return jwtToken;
 }
 
-export async function getUser(userId) {
-  // try {
-  //   let fetchedUser;
-  //   var connection = mysql.createConnection(dbConfig);
-  //   connection.connect();
-  //   const [rows, fields] = await connection.promise().query(`SELECT * FROM User WHERE userId="${userId}"`);
-  //   fetchedUser = rows.length ? rows[0] : {};
-  //   connection.end();
-  //   return fetchedUser;
-  // } catch(err) {
-  //   throw Error('Error');
-  // }
-}
-
 export async function verifySession(data) {
   const token = data.token;
   const verdict = await verifyToken(token);
