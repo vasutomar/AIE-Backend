@@ -8,8 +8,8 @@ import { createLogger } from './utils/logger-utils.js';
 
 const logger = createLogger();
 
-const port = getVariable('PORT');
-const host = getVariable('HOSTNAME');
+const port = getVariable('PORT') | 3001;
+const host = getVariable('HOSTNAME') | '127.0.0.1';
 
 logger.info(`Fetched host : ${host} and port :${port}`);
 
