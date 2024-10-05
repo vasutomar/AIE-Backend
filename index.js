@@ -11,6 +11,8 @@ const logger = createLogger();
 const port = getVariable('PORT');
 const host = getVariable('HOSTNAME');
 
+logger.info(`Fetched host : ${host} and port :${port}`);
+
 const app = express();
 app.set('port', port);
 app.use(bodyParser.json());
