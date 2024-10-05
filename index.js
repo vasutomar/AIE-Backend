@@ -4,6 +4,10 @@ import { onboardingRouter } from './routers/onboarding-router.js';
 import { getVariable } from './config/getVariables.js';
 import bodyParser from 'body-parser';
 
+import { createLogger } from './utils/logger-utils.js';
+
+const logger = createLogger();
+
 const port = getVariable('PORT');
 const host = getVariable('HOSTNAME');
 
@@ -13,6 +17,7 @@ app.use(bodyParser.json());
 
 app.use(authenticationRouter);
 app.use(onboardingRouter);
+
 app.listen(parseInt(port, 10), host, () => {
-    console.log(`Server started at ${host}:${port}`);
+    logger.info(`AIE Server running on ${host}:${port}`);
 });
