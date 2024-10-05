@@ -14,5 +14,5 @@ app.use(bodyParser.json());
 app.use(authenticationRouter);
 app.use(onboardingRouter);
 app.listen(parseInt(port, 10), host, () => {
-    console.log(`Server started at http://localhost:${port}`);
+    console.log(`Server started at ${host}:${port}`);
 });
