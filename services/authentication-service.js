@@ -59,8 +59,7 @@ export async function createUser(userData) {
   return jwtToken;
 }
 
-export async function loginUser(password, token) {
-  const username = await getUsername(token);
+export async function loginUser(username, password) {
   const hashedPassword = hashPassword(password);
 
   const connectedClient = await mongoClient.connect(uri);
