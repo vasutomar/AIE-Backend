@@ -32,14 +32,25 @@ export async function createUser(userData) {
   try {
     logger.info("createUser service : MongoDB Connection established");
     const db = connectedClient.db(getVariable("DATABASE"));
-    let users = db.collection("USERS");
-    let storedUser = await users.findOne({ username });
+    let usersCollection = db.collection("USERS");
+    let profileCollection = db.collection("USERS");
+    let storedUser = await usersCollection.findOne({ username });
     if (!storedUser) {
       try {
         logger.info("createUser service : Creating user");
         const hashedPassword = hashPassword(password);
         userData.password = hashedPassword;
-        await users.insertOne(userData);
+        const { phone, email, ...userInfo } = userData;
+        await usersCollection.insertOne(userInfo);
+        logger.info("createUser service : User created");
+        await profileCollection.insertOne({
+          username: userData.username,
+          phone,
+          email,
+          exams: [],
+          salt: ''
+        });
+        logger.info("createUser service : User profile created");
         jwtToken = getJWTToken({
           username,
           firstName,
