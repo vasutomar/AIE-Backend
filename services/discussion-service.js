@@ -1,4 +1,5 @@
 import { getVariable } from "../config/getVariables.js";
+import { updateDiscussion } from "../controllers/discussion-controller.js";
 import { createLogger } from "../utils/logger-utils.js";
 import mongo, { ObjectId } from "mongodb";
 
@@ -13,7 +14,7 @@ export function checkHealth() {
 
 export async function getDiscussionsForExam(exam, count, page) {
   logger.info("getDiscussion service : Start");
-  let fetchedDiscussions;
+  let fetchedDiscussions = [];
   const connectedClient = await mongoClient.connect(uri);
   if (!connectedClient) throw new Error("Cannot connect to mongodb");
 
@@ -26,11 +27,6 @@ export async function getDiscussionsForExam(exam, count, page) {
         .find({ exam })
         .skip((page - 1) * count)
         .limit(parseInt(count, 10))
-        .toArray(function(err, result) {
-            if (err) throw err;
-            console.log(result);
-            fetchedDiscussions = result;
-        });
     } catch (err) {
       logger.error("getDiscussion service : Error while getting discussions");
       throw err;
@@ -40,7 +36,11 @@ export async function getDiscussionsForExam(exam, count, page) {
     throw err;
   }
   logger.info("getDiscussion service : API Completed");
-  return fetchedDiscussions;
+  const apiResponse = [];
+  for await (const discussion of fetchedDiscussions) {
+    apiResponse.push(discussion);
+  }
+  return apiResponse;
 }
 
 export async function createNewDiscussion(body) {
@@ -79,7 +79,7 @@ export async function modifyDiscussion(id, body) {
     const db = connectedClient.db(getVariable("DATABASE"));
     let discussionCollection = db.collection("DISCUSSIONS");
     try {
-      updatedProfile = discussionCollection.updateOne(
+      discussionCollection.updateOne(
         { "_id": ObjectId(id) },
         {
           $set: body,
