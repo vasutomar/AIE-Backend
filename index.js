@@ -3,6 +3,7 @@ import express from 'express';
 import { authenticationRouter } from './routers/authentication-router.js';
 import { onboardingRouter } from './routers/onboarding-router.js';
 import { profileRouter } from './routers/profile-router.js';
+import { discussionRouter } from './routers/discussion-router.js';
 
 import { getVariable } from './config/getVariables.js';
 import { createLogger } from './utils/logger-utils.js';
@@ -23,6 +24,7 @@ app.use(cors());
 app.use(authenticationRouter);
 app.use(onboardingRouter);
 app.use(profileRouter);
+app.use(discussionRouter);
 
 app.listen(parseInt(port, 10), host, () => {
     logger.info(`AIE Server running on ${host}:${port}`);
