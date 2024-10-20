@@ -41,61 +41,6 @@ export async function getUserProfile(username) {
   return fetchedProfile;
 }
 
-export async function createUserProfile(body) {
-  logger.info("createProfile service : Start");
-  let createdProfile;
-  const connectedClient = await mongoClient.connect(uri);
-  if (!connectedClient) throw new Error("Cannot connect to mongodb");
-
-  try {
-    logger.info("createProfile service : MongoDB Connection established");
-    const db = connectedClient.db(getVariable("DATABASE"));
-    let profileCollection = db.collection("PROFILE");
-    try {
-      createdProfile = await profileCollection.insertOne(body);
-      logger.info("createProfile service : Profile created");
-    } catch (err) {
-      logger.info("createProfile service : Cannot create profile");
-      throw err;
-    }
-  } catch (err) {
-    logger.info(
-      "createProfile service : DB Initialization or connection issues"
-    );
-    throw err;
-  }
-  logger.info("createProfile service : API Completed");
-  return createdProfile;
-}
-
-export async function deleteUserProfile(username) {
-  logger.info("deleteProfile service : Start");
-  const connectedClient = await mongoClient.connect(uri);
-  if (!connectedClient) throw new Error("Cannot connect to mongodb");
-
-  try {
-    logger.info("deleteProfile service : MongoDB Connection established");
-    const db = connectedClient.db(getVariable("DATABASE"));
-    let profileCollection = db.collection("PROFILE");
-    try {
-      await profileCollection.deleteOne({
-        username,
-      });
-      logger.info("deleteProfile service : Profile deleted");
-    } catch (err) {
-      logger.info("deleteProfile service : Cannot delete profile");
-      throw err;
-    }
-  } catch (err) {
-    logger.info(
-      "deleteProfile service : DB Initialization or connection issues"
-    );
-    throw err;
-  }
-  logger.info("deleteProfile service : API Completed");
-  return true;
-}
-
 export async function updateUserProfile(username, body) {
   logger.info("updateProfile service : Start");
   let updatedProfile;
@@ -107,7 +52,13 @@ export async function updateUserProfile(username, body) {
     const db = connectedClient.db(getVariable("DATABASE"));
     let profileCollection = db.collection("PROFILE");
     try {
-      updatedProfile = await profileCollection.updateOne({ username }, body);
+      updatedProfile = profileCollection.updateOne(
+        { username },
+        {
+          $set: body,
+        },
+        { upset: false }
+      );
       logger.info("updateProfile service : Profile updated");
     } catch (err) {
       logger.info("updateProfile service : Cannot update profile");

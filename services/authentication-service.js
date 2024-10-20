@@ -33,7 +33,7 @@ export async function createUser(userData) {
     logger.info("createUser service : MongoDB Connection established");
     const db = connectedClient.db(getVariable("DATABASE"));
     let usersCollection = db.collection("USERS");
-    let profileCollection = db.collection("USERS");
+    let profileCollection = db.collection("PROFILE");
     let storedUser = await usersCollection.findOne({ username });
     if (!storedUser) {
       try {
