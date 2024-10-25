@@ -14,6 +14,7 @@ var DB *mongo.Database
 func initMongo(quit chan bool) {
 	// Init Mongo
 	uri := os.Getenv("MONGODBURI")
+	log.Debug().Msgf("Mongo URI: %v", uri)
 
 	// Set client options
 	clientOptions := options.Client().ApplyURI(uri)

@@ -3,6 +3,7 @@ package server
 import (
 	"aie/internal/api/authentication"
 	"aie/internal/api/onboarding"
+	"aie/internal/api/profile"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,5 +14,6 @@ func registerRoutes(router *gin.Engine) {
 	{
 		authentication.AuthenticationAPIs(v1)
 		onboarding.OnboardingAPIs(v1)
+		profile.ProfileAPIs(v1)
 	}
 }
