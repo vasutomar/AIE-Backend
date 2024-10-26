@@ -33,6 +33,16 @@ type UserToken struct {
 	jwt.RegisteredClaims
 }
 
+type UserSignupRequest struct {
+	Username  string `json:"username"`
+	Password  string `json:"password"`
+	FirstName string `json:"firstname"`
+	LastName  string `json:"lastname"`
+	Phone     string `json:"phone"`
+	Email     string `json:"email"`
+	UserId    string `json:"userid"`
+}
+
 type UserTokenRequest struct {
 	Token string `json:"token"`
 }
