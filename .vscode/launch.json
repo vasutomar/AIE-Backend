@@ -5,6 +5,14 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Golang Debugging",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}\\cmd\\aie\\aie.go",
+            "args": ["start"],
+        },
+        {
             "type": "node",
             "request": "launch",
             "name": "Launch Program",
