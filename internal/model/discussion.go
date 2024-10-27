@@ -36,3 +36,13 @@ func GetDiscussions(exam string, items, page int64) (*[]Discussion, error) {
 	}
 	return &results, err
 }
+
+func CreateDiscussion(discussion Discussion) error {
+	log.Debug().Msg("CreateDiscussion started")
+	_, err := providers.DB.Collection("DISCUSSIONS").InsertOne(context.Background(), discussion)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
