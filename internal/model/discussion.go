@@ -6,6 +6,7 @@ import (
 
 	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type Discussion struct {
@@ -17,11 +18,14 @@ type Discussion struct {
 	Comments       []string `json:"comments"`
 }
 
-func GetDiscussions(exam string) (*[]Discussion, error) {
+func GetDiscussions(exam string, items, page int64) (*[]Discussion, error) {
 	log.Debug().Msg("getDiscussions started")
 	filter := bson.D{{Key: "exam", Value: exam}}
 
-	cursor, err := providers.DB.Collection("DISCUSSIONS").Find(context.TODO(), filter)
+	options := options.Find()
+	options.SetLimit(items)
+	options.SetSkip((page - 1) * items)
+	cursor, err := providers.DB.Collection("DISCUSSIONS").Find(context.TODO(), filter, options)
 	if err != nil {
 		panic(err)
 	}
