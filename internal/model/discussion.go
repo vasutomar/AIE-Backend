@@ -16,9 +16,12 @@ type Discussion struct {
 	Like_Count     int      `json:"like_count"`
 	Bookmark_Count int      `json:"bookmark_count"`
 	Comments       []string `json:"comments"`
+	Exam           string   `json:"exam"`
+	Liked_By       []string `json:"liked_by"`
+	Bookmarked_By  []string `json:"bookmarked_by"`
 }
 
-func GetDiscussions(exam string, items, page int64) (*[]Discussion, error) {
+func GetDiscussions(exam string, items, page int64) (*[]bson.M, error) {
 	log.Debug().Msg("getDiscussions started")
 	filter := bson.D{{Key: "exam", Value: exam}}
 
@@ -30,7 +33,7 @@ func GetDiscussions(exam string, items, page int64) (*[]Discussion, error) {
 		panic(err)
 	}
 	// Unpacks the cursor into a slice
-	var results []Discussion
+	var results []bson.M
 	if err = cursor.All(context.TODO(), &results); err != nil {
 		panic(err)
 	}
