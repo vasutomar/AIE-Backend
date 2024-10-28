@@ -17,14 +17,13 @@ func Signup(c *gin.Context) {
 	}
 
 	userProfile := model.Profile{
-		Username: userData.Username,
-		Phone:    userData.Phone,
-		Email:    userData.Email,
-		Exams:    []string{},
-		Salt:     "",
+		UserId: userData.UserId,
+		Phone:  userData.Phone,
+		Email:  userData.Email,
+		Exams:  []string{},
+		Salt:   "",
 	}
-
-	user := model.User{
+	user := &model.User{
 		Username:  userData.Username,
 		Password:  userData.Password,
 		FirstName: userData.FirstName,
@@ -38,6 +37,13 @@ func Signup(c *gin.Context) {
 		utils.SetError(c, err)
 		return
 	}
+	profileCreateError := model.CreateProfile(userProfile)
+	if profileCreateError != nil {
+		log.Err(err).Msg("Error creating user profile")
+		utils.SetError(c, err)
+		return
+	}
+
 	profileCreateError := model.CreateProfile(userProfile)
 	if profileCreateError != nil {
 		log.Err(err).Msg("Error creating user profile")

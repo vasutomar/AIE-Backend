@@ -18,6 +18,16 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+type UserSignupRequest struct {
+	Username  string `json:"username"`
+	Password  string `json:"password"`
+	FirstName string `json:"firstname"`
+	LastName  string `json:"lastname"`
+	Phone     string `json:"phone"`
+	Email     string `json:"email"`
+	UserId    string `json:"userid"`
+}
+
 type User struct {
 	Username  string `json:"username"`
 	Password  string `json:"password"`
@@ -27,6 +37,7 @@ type User struct {
 }
 
 type UserToken struct {
+	UserId    string
 	Username  string
 	FirstName string
 	LastName  string
@@ -68,6 +79,8 @@ func (user *User) Signin() (string, error) {
 	if exists {
 		user.FirstName = result["firstname"].(string)
 		user.LastName = result["lastname"].(string)
+		user.UserId = result["user_id"].(string)
+		user.Username = result["username"].(string)
 		jwt, err := user.generateJWT()
 		if err != nil {
 			return "", err
@@ -125,6 +138,7 @@ func (user *User) generateJWT() (string, error) {
 		user.Username,
 		user.FirstName,
 		user.LastName,
+		user.UserId,
 		jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),

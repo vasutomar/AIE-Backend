@@ -10,12 +10,21 @@ import (
 
 func GetDiscussionsByExam(c *gin.Context) {
 	exam := c.Param("exam")
-	items, _ := strconv.ParseInt(c.DefaultQuery("items", "1"), 10, 64)
-	page, _ := strconv.ParseInt(c.DefaultQuery("page", "1"), 10, 64)
-	profile, err := model.GetDiscussions(exam, items, page)
+	itemsCount := c.DefaultQuery("items", "20")
+	page := c.DefaultQuery("page", "1")
+
+	itemsCountInt, err := strconv.ParseInt(itemsCount, 10, 64)
 	if err != nil {
 		utils.SetError(c, err)
 		return
 	}
-	utils.SetResponse(c, 201, "Discussions fetched", profile)
+
+	pageInt, err := strconv.ParseInt(page, 10, 64)
+	if err != nil {
+		utils.SetError(c, err)
+		return
+	}
+
+	discussions, err := model.GetDiscussionsByExam(exam, itemsCountInt, pageInt)
+	utils.SetResponse(c, 200, "Discussions fetched", discussions)
 }

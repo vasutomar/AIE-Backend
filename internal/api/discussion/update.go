@@ -3,23 +3,22 @@ package discussion
 import (
 	"aie/internal/model"
 	"aie/internal/utils"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
-func CreateDiscussion(c *gin.Context) {
-	discussion := model.Discussion{}
-
+func UpdateDiscussion(c *gin.Context) {
+	discussion := &model.Discussion{}
 	if err := c.ShouldBindJSON(&discussion); err != nil {
 		utils.SetError(c, err)
 		return
 	}
 
-	if err := discussion.Create(); err != nil {
+	id := c.Param("id")
+	err := model.UpdateDiscussion(id, discussion)
+	if err != nil {
 		utils.SetError(c, err)
 		return
 	}
-
-	utils.SetResponse(c, http.StatusOK, "Discussion created up successfully", nil)
+	utils.SetResponse(c, 200, "Discussion updated", nil)
 }

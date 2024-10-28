@@ -12,5 +12,6 @@ func DiscussionAPIs(router *gin.RouterGroup) {
 		r.GET("health", Health)
 		r.GET(":exam", middlewares.AuthMiddleware(), GetDiscussionsByExam)
 		r.POST("", middlewares.AuthMiddleware(), CreateDiscussion)
+		r.PATCH(":id", middlewares.AuthMiddleware(), UpdateDiscussion)
 	}
 }
