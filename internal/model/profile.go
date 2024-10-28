@@ -11,11 +11,20 @@ import (
 )
 
 type Profile struct {
-	Username string   `json:"username"`
-	Phone    string   `json:"phone"`
-	Email    string   `json:"email"`
-	Exams    []string `json:"exams"`
-	Salt     string   `json:"salt"`
+	UserId string   `json:"userid" bson:"user_id"`
+	Phone  string   `json:"phone"`
+	Email  string   `json:"email"`
+	Exams  []string `json:"exams"`
+	Salt   string   `json:"salt"`
+}
+
+func CreateProfile(profile Profile) error {
+	log.Debug().Msgf("creating profile for user: %v", profile.UserId)
+	_, err := providers.DB.Collection("PROFILE").InsertOne(context.Background(), profile)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func GetProfile(username string) (*Profile, error) {
@@ -30,11 +39,11 @@ func GetProfile(username string) (*Profile, error) {
 	}
 
 	profile := &Profile{
-		Username: result["username"].(string),
-		Phone:    result["phone"].(string),
-		Email:    result["email"].(string),
-		Exams:    make([]string, 0),
-		Salt:     result["salt"].(string),
+		UserId: result["user_id"].(string),
+		Phone:  result["phone"].(string),
+		Email:  result["email"].(string),
+		Exams:  make([]string, 0),
+		Salt:   result["salt"].(string),
 	}
 
 	exams := result["exams"].(bson.A)

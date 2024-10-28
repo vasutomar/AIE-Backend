@@ -6,6 +6,7 @@ import (
 	"slices"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -13,19 +14,24 @@ import (
 )
 
 type Discussion struct {
-	Title         string `json:"title"`
-	Body          string `json:"body"`
-	Username      string `json:"username"`
-	Exam          string `json:"exam"`
-	LikeCount     int64  `json:"like_count" bson:"like_count"`
-	BookmarkCount int64  `json:"bookmark_count" bson:"bookmark_count"`
-	// Array of comment ObjectIds
-	Comments []string `json:"comments"`
+	Id             string   `json:"_id" bson:"_id"`
+	DiscussionId   string   `json:"discussion_id" bson:"discussion_id"`
+	UserId         string   `json:"user_id" bson:"user_id"`
+	Title          string   `json:"title"`
+	Body           string   `json:"body"`
+	Like_Count     int      `json:"like_count"`
+	Bookmark_Count int      `json:"bookmark_count" bson:"bookmark_count"`
+	Comments       []string `json:"comments"`
+	Exam           string   `json:"exam"`
+	Liked_By       []string `json:"liked_by" bson:"liked_by"`
+	Bookmarked_By  []string `json:"bookmarked_by" bson:"bookmarked_by"`
 }
 
 // TODO: Do field validation before calling this method
 func (d *Discussion) Create() error {
 	log.Debug().Msg("Create discussion started")
+	d.Id = primitive.NewObjectID().Hex()
+	d.DiscussionId = uuid.New().String()
 	_, err := providers.DB.Collection("DISCUSSIONS").InsertOne(context.Background(), d)
 	if err != nil {
 		return err
@@ -59,16 +65,24 @@ func UpdateDiscussion(id string, discussion *Discussion) error {
 		existingDiscussion.Exam = discussion.Exam
 		changesCount++
 	}
-	if existingDiscussion.LikeCount != discussion.LikeCount {
-		existingDiscussion.LikeCount = discussion.LikeCount
+	if existingDiscussion.Like_Count != discussion.Like_Count {
+		existingDiscussion.Like_Count = discussion.Like_Count
 		changesCount++
 	}
-	if existingDiscussion.BookmarkCount != discussion.BookmarkCount {
-		existingDiscussion.BookmarkCount = discussion.BookmarkCount
+	if existingDiscussion.Bookmark_Count != discussion.Bookmark_Count {
+		existingDiscussion.Bookmark_Count = discussion.Bookmark_Count
 		changesCount++
 	}
 	if len(discussion.Comments) > 0 && !slices.Equal(existingDiscussion.Comments, discussion.Comments) {
 		existingDiscussion.Comments = discussion.Comments
+		changesCount++
+	}
+	if len(discussion.Liked_By) > 0 && !slices.Equal(existingDiscussion.Liked_By, discussion.Liked_By) {
+		existingDiscussion.Liked_By = discussion.Liked_By
+		changesCount++
+	}
+	if len(discussion.Bookmarked_By) > 0 && !slices.Equal(existingDiscussion.Bookmarked_By, discussion.Bookmarked_By) {
+		existingDiscussion.Bookmarked_By = discussion.Bookmarked_By
 		changesCount++
 	}
 
@@ -110,12 +124,12 @@ func GetDiscussion(id string) (*Discussion, error) {
 	return discussion, nil
 }
 
-func GetDiscussions(exam string, count, page int64) ([]*Discussion, error) {
+func GetDiscussionsByExam(exam string, itemsCount, page int64) ([]*Discussion, error) {
 	log.Debug().Msg("GetDiscussions started")
 
 	// Calculate the skip and limit values
-	skip := (page - 1) * count
-	limit := count
+	skip := (page - 1) * itemsCount
+	limit := itemsCount
 
 	// Define options with skip and limit for pagination
 	findOptions := options.Find().SetSkip(skip).SetLimit(limit)

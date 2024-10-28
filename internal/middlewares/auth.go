@@ -38,6 +38,7 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		// You can pass the claims down to the handler using the context
 		c.Set("username", claims.Username)
+		c.Set("userId", claims.UserId)
 		c.Set("firstName", claims.FirstName)
 		c.Set("lastName", claims.LastName)
 

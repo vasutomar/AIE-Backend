@@ -8,23 +8,23 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetDiscussions(c *gin.Context) {
+func GetDiscussionsByExam(c *gin.Context) {
 	exam := c.Param("exam")
-	count := c.Query("count")
-	page := c.Query("page")
+	itemsCount := c.DefaultQuery("items", "20")
+	page := c.DefaultQuery("page", "1")
 
-	countInt, err := strconv.ParseInt(count, 10, 32)
+	itemsCountInt, err := strconv.ParseInt(itemsCount, 10, 64)
 	if err != nil {
 		utils.SetError(c, err)
 		return
 	}
 
-	pageInt, err := strconv.ParseInt(page, 10, 32)
+	pageInt, err := strconv.ParseInt(page, 10, 64)
 	if err != nil {
 		utils.SetError(c, err)
 		return
 	}
 
-	discussions, err := model.GetDiscussions(exam, countInt, pageInt)
+	discussions, err := model.GetDiscussionsByExam(exam, itemsCountInt, pageInt)
 	utils.SetResponse(c, 200, "Discussions fetched", discussions)
 }
