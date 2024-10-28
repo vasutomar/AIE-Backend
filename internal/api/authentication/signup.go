@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 )
 
@@ -14,6 +15,10 @@ func Signup(c *gin.Context) {
 	if err := c.ShouldBindJSON(&userData); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
+	}
+
+	if userData.UserId == "" {
+		userData.UserId = uuid.New().String()
 	}
 
 	userProfile := model.Profile{
