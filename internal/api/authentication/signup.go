@@ -44,12 +44,5 @@ func Signup(c *gin.Context) {
 		return
 	}
 
-	profileCreateError := model.CreateProfile(userProfile)
-	if profileCreateError != nil {
-		log.Err(err).Msg("Error creating user profile")
-		utils.SetError(c, err)
-		return
-	}
-
 	utils.SetResponse(c, http.StatusOK, "User signed up successfully", jwt)
 }

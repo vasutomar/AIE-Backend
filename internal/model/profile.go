@@ -27,15 +27,6 @@ func CreateProfile(profile Profile) error {
 	return nil
 }
 
-func CreateProfile(profile Profile) error {
-	log.Debug().Msgf("creating profile for user: %v", profile.Username)
-	_, err := providers.DB.Collection("PROFILE").InsertOne(context.Background(), profile)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 func GetProfile(username string) (*Profile, error) {
 	log.Debug().Msgf("profile get started: %v", username)
 	// Check if the user already exists

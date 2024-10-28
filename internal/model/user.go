@@ -18,16 +18,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-type UserSignupRequest struct {
-	Username  string `json:"username"`
-	Password  string `json:"password"`
-	FirstName string `json:"firstname"`
-	LastName  string `json:"lastname"`
-	Phone     string `json:"phone"`
-	Email     string `json:"email"`
-	UserId    string `json:"userid"`
-}
-
 type User struct {
 	Username  string `json:"username"`
 	Password  string `json:"password"`
