@@ -34,6 +34,11 @@ type UserToken struct {
 	jwt.RegisteredClaims
 }
 
+type UserSigninRequest struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
 type UserSignupRequest struct {
 	Username  string `json:"username"`
 	Password  string `json:"password"`
@@ -41,6 +46,13 @@ type UserSignupRequest struct {
 	LastName  string `json:"lastname"`
 	Phone     string `json:"phone"`
 	Email     string `json:"email"`
+	UserId    string `json:"userid"`
+}
+
+type JWTTokenData struct {
+	Username  string `json:"username"`
+	FirstName string `json:"firstname"`
+	LastName  string `json:"lastname"`
 	UserId    string `json:"userid"`
 }
 
@@ -67,11 +79,13 @@ func (user *User) Signin() (string, error) {
 	}
 
 	if exists {
-		user.FirstName = result["firstname"].(string)
-		user.LastName = result["lastname"].(string)
-		user.UserId = result["user_id"].(string)
-		user.Username = result["username"].(string)
-		jwt, err := user.generateJWT()
+		tokenData := JWTTokenData{
+			FirstName: result["firstname"].(string),
+			LastName:  result["lastname"].(string),
+			UserId:    result["userid"].(string),
+			Username:  result["username"].(string),
+		}
+		jwt, err := tokenData.generateJWT()
 		if err != nil {
 			return "", err
 		}
@@ -110,7 +124,15 @@ func (user *User) Create() (string, error) {
 		if err != nil {
 			return "", err
 		}
-		jwt, err := user.generateJWT()
+
+		tokenData := JWTTokenData{
+			Username:  user.Username,
+			FirstName: user.FirstName,
+			LastName:  user.LastName,
+			UserId:    user.UserId,
+		}
+
+		jwt, err := tokenData.generateJWT()
 		if err != nil {
 			return "", err
 		}
@@ -122,13 +144,13 @@ func (user *User) Create() (string, error) {
 	return "", errors.New(fmt.Sprintf("User already exists: %v", user.Username))
 }
 
-func (user *User) generateJWT() (string, error) {
+func (data *JWTTokenData) generateJWT() (string, error) {
 	// TODO: Add test for JWT expiry
 	claims := UserToken{
-		user.Username,
-		user.FirstName,
-		user.LastName,
-		user.UserId,
+		data.Username,
+		data.FirstName,
+		data.LastName,
+		data.UserId,
 		jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),

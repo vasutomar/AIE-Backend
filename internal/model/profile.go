@@ -11,7 +11,7 @@ import (
 )
 
 type Profile struct {
-	UserId string   `json:"userid" bson:"user_id"`
+	UserId string   `json:"user_id" bson:"user_id"`
 	Phone  string   `json:"phone"`
 	Email  string   `json:"email"`
 	Exams  []string `json:"exams"`
