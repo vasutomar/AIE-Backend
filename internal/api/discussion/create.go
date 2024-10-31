@@ -9,14 +9,14 @@ import (
 )
 
 func CreateDiscussion(c *gin.Context) {
-	discussion := model.Discussion{}
+	createDiscussionRequestData := model.CreateDiscusstionRequest{}
 
-	if err := c.ShouldBindJSON(&discussion); err != nil {
+	if err := c.ShouldBindJSON(&createDiscussionRequestData); err != nil {
 		utils.SetError(c, err)
 		return
 	}
-
-	if err := discussion.Create(); err != nil {
+	userId := utils.GetUserId(c)
+	if err := createDiscussionRequestData.Create(userId); err != nil {
 		utils.SetError(c, err)
 		return
 	}

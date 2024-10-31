@@ -13,8 +13,18 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+type CreateDiscusstionRequest struct {
+	Title          string   `json:"title"`
+	Body           string   `json:"body"`
+	Like_Count     int      `json:"like_count"`
+	Bookmark_Count int      `json:"bookmark_count" bson:"bookmark_count"`
+	Comments       []string `json:"comments"`
+	Exam           string   `json:"exam"`
+	Liked_By       []string `json:"liked_by" bson:"liked_by"`
+	Bookmarked_By  []string `json:"bookmarked_by" bson:"bookmarked_by"`
+}
+
 type Discussion struct {
-	Id             string   `json:"_id" bson:"_id"`
 	DiscussionId   string   `json:"discussion_id" bson:"discussion_id"`
 	UserId         string   `json:"user_id" bson:"user_id"`
 	Title          string   `json:"title"`
@@ -28,10 +38,21 @@ type Discussion struct {
 }
 
 // TODO: Do field validation before calling this method
-func (d *Discussion) Create() error {
+func (createDiscussionData *CreateDiscusstionRequest) Create(userId string) error {
 	log.Debug().Msg("Create discussion started")
-	d.Id = primitive.NewObjectID().Hex()
-	d.DiscussionId = uuid.New().String()
+	d := Discussion{
+		DiscussionId:   uuid.New().String(),
+		UserId:         userId,
+		Title:          createDiscussionData.Title,
+		Body:           createDiscussionData.Body,
+		Like_Count:     createDiscussionData.Like_Count,
+		Bookmark_Count: createDiscussionData.Bookmark_Count,
+		Comments:       createDiscussionData.Comments,
+		Exam:           createDiscussionData.Exam,
+		Liked_By:       createDiscussionData.Liked_By,
+		Bookmarked_By:  createDiscussionData.Bookmarked_By,
+	}
+
 	_, err := providers.DB.Collection("DISCUSSIONS").InsertOne(context.Background(), d)
 	if err != nil {
 		return err

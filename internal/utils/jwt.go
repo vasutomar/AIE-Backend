@@ -3,8 +3,11 @@ package utils
 import (
 	"aie/internal/model"
 	"errors"
+	"net/http"
 	"os"
+	"strings"
 
+	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -23,4 +26,25 @@ func VerifyUserJWT(tokenString string) (*model.UserToken, error) {
 	} else {
 		return nil, err
 	}
+}
+
+func GetUserId(c *gin.Context) string {
+
+	authHeader := c.GetHeader("Authorization")
+	if authHeader == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is missing"})
+		c.Abort()
+		return ""
+	}
+
+	// The token is typically prefixed by "Bearer"
+	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+	if tokenString == authHeader {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token format"})
+		c.Abort()
+		return ""
+	}
+
+	claims, _ := VerifyUserJWT(tokenString)
+	return claims.UserId
 }

@@ -27,10 +27,10 @@ type User struct {
 }
 
 type UserToken struct {
-	UserId    string
 	Username  string
 	FirstName string
 	LastName  string
+	UserId    string
 	jwt.RegisteredClaims
 }
 
