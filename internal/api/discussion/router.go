@@ -13,5 +13,6 @@ func DiscussionAPIs(router *gin.RouterGroup) {
 		r.GET(":exam", middlewares.AuthMiddleware(), GetDiscussionsByExam)
 		r.POST("", middlewares.AuthMiddleware(), CreateDiscussion)
 		r.PATCH(":id", middlewares.AuthMiddleware(), UpdateDiscussion)
+		r.PATCH("/comment/:id", middlewares.AuthMiddleware(), CommentOnDiscussion)
 	}
 }

@@ -14,27 +14,36 @@ import (
 )
 
 type CreateDiscusstionRequest struct {
-	Title          string   `json:"title"`
-	Body           string   `json:"body"`
-	Like_Count     int      `json:"like_count"`
-	Bookmark_Count int      `json:"bookmark_count" bson:"bookmark_count"`
-	Comments       []string `json:"comments"`
-	Exam           string   `json:"exam"`
-	Liked_By       []string `json:"liked_by" bson:"liked_by"`
-	Bookmarked_By  []string `json:"bookmarked_by" bson:"bookmarked_by"`
+	Title          string    `json:"title"`
+	Body           string    `json:"body"`
+	Like_Count     int       `json:"like_count"`
+	Bookmark_Count int       `json:"bookmark_count" bson:"bookmark_count"`
+	Comments       []Comment `json:"comments"`
+	Exam           string    `json:"exam"`
+	Liked_By       []string  `json:"liked_by" bson:"liked_by"`
+	Bookmarked_By  []string  `json:"bookmarked_by" bson:"bookmarked_by"`
+}
+
+type Comment struct {
+	Username string
+	Comment  string
 }
 
 type Discussion struct {
-	DiscussionId   string   `json:"discussion_id" bson:"discussion_id"`
-	UserId         string   `json:"user_id" bson:"user_id"`
-	Title          string   `json:"title"`
-	Body           string   `json:"body"`
-	Like_Count     int      `json:"like_count"`
-	Bookmark_Count int      `json:"bookmark_count" bson:"bookmark_count"`
-	Comments       []string `json:"comments"`
-	Exam           string   `json:"exam"`
-	Liked_By       []string `json:"liked_by" bson:"liked_by"`
-	Bookmarked_By  []string `json:"bookmarked_by" bson:"bookmarked_by"`
+	DiscussionId   string    `json:"discussion_id" bson:"discussion_id"`
+	UserId         string    `json:"user_id" bson:"user_id"`
+	Title          string    `json:"title"`
+	Body           string    `json:"body"`
+	Like_Count     int       `json:"like_count"`
+	Bookmark_Count int       `json:"bookmark_count" bson:"bookmark_count"`
+	Comments       []Comment `json:"comments"`
+	Exam           string    `json:"exam"`
+	Liked_By       []string  `json:"liked_by" bson:"liked_by"`
+	Bookmarked_By  []string  `json:"bookmarked_by" bson:"bookmarked_by"`
+}
+
+type CommentRequest struct {
+	Comment string `json:"comment"`
 }
 
 // TODO: Do field validation before calling this method
@@ -125,15 +134,10 @@ func UpdateDiscussion(id string, discussion *Discussion) error {
 
 func GetDiscussion(id string) (*Discussion, error) {
 	log.Debug().Msg("GetDiscussion started")
-
-	objectId, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return nil, err
-	}
-	filter := bson.D{{Key: "_id", Value: objectId}}
+	filter := bson.D{{Key: "discussion_id", Value: id}}
 
 	var result bson.M
-	err = providers.DB.Collection("DISCUSSIONS").FindOne(context.Background(), filter).Decode(&result)
+	err := providers.DB.Collection("DISCUSSIONS").FindOne(context.Background(), filter).Decode(&result)
 	if err != nil {
 		return nil, err
 	}
@@ -183,4 +187,25 @@ func GetDiscussionsByExam(exam string, itemsCount, page int64) ([]*Discussion, e
 	}
 
 	return discussions, nil
+}
+
+func AddComment(id string, comment Comment, userId string) error {
+	discussion, err := GetDiscussion(id)
+	if err != nil {
+		return err
+	}
+	storedComments := discussion.Comments
+	updatedComments := append(storedComments, comment)
+	discussion.Comments = updatedComments
+
+	filter := bson.D{{Key: "discussion_id", Value: id}}
+	update := bson.D{{Key: "$set", Value: discussion}}
+	updateOpts := options.Update().SetUpsert(false)
+
+	_, err = providers.DB.Collection("DISCUSSIONS").UpdateOne(context.Background(), filter, update, updateOpts)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

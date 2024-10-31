@@ -48,3 +48,24 @@ func GetUserId(c *gin.Context) string {
 	claims, _ := VerifyUserJWT(tokenString)
 	return claims.UserId
 }
+
+func GetUsername(c *gin.Context) string {
+
+	authHeader := c.GetHeader("Authorization")
+	if authHeader == "" {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header is missing"})
+		c.Abort()
+		return ""
+	}
+
+	// The token is typically prefixed by "Bearer"
+	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+	if tokenString == authHeader {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token format"})
+		c.Abort()
+		return ""
+	}
+
+	claims, _ := VerifyUserJWT(tokenString)
+	return claims.Username
+}
