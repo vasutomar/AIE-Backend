@@ -209,3 +209,61 @@ func AddComment(id string, comment Comment, userId string) error {
 
 	return nil
 }
+
+func ToggleLike(userId string, discussionId string) error {
+	discussion, err := GetDiscussion(discussionId)
+	if err != nil {
+		return err
+	}
+
+	usersWhoHaveLiked := discussion.Liked_By
+	matchedUserIdIndex := slices.IndexFunc(usersWhoHaveLiked, func(c string) bool { return c == userId })
+	if matchedUserIdIndex >= 0 {
+		// User had already liked the post, deregister like
+		discussion.Like_Count = discussion.Like_Count - 1
+		discussion.Liked_By = append(discussion.Liked_By[:matchedUserIdIndex], discussion.Liked_By[matchedUserIdIndex+1:]...)
+	} else {
+		// User has not liked the post, register like
+		discussion.Like_Count = discussion.Like_Count + 1
+		discussion.Liked_By = append(discussion.Liked_By, userId)
+	}
+
+	filter := bson.D{{Key: "discussion_id", Value: discussionId}}
+	update := bson.D{{Key: "$set", Value: discussion}}
+	updateOpts := options.Update().SetUpsert(false)
+
+	_, err = providers.DB.Collection("DISCUSSIONS").UpdateOne(context.Background(), filter, update, updateOpts)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func ToggleBookmark(userId string, discussionId string) error {
+	discussion, err := GetDiscussion(discussionId)
+	if err != nil {
+		return err
+	}
+
+	usersWhoHaveBookmarked := discussion.Bookmarked_By
+	matchedUserIdIndex := slices.IndexFunc(usersWhoHaveBookmarked, func(c string) bool { return c == userId })
+	if matchedUserIdIndex >= 0 {
+		// User had already bookmarked the post, deregister bookmark
+		discussion.Bookmark_Count = discussion.Bookmark_Count - 1
+		discussion.Bookmarked_By = append(discussion.Bookmarked_By[:matchedUserIdIndex], discussion.Bookmarked_By[matchedUserIdIndex+1:]...)
+	} else {
+		// User has not bookmarked the post, register bookmark
+		discussion.Bookmark_Count = discussion.Bookmark_Count + 1
+		discussion.Bookmarked_By = append(discussion.Bookmarked_By, userId)
+	}
+
+	filter := bson.D{{Key: "discussion_id", Value: discussionId}}
+	update := bson.D{{Key: "$set", Value: discussion}}
+	updateOpts := options.Update().SetUpsert(false)
+
+	_, err = providers.DB.Collection("DISCUSSIONS").UpdateOne(context.Background(), filter, update, updateOpts)
+	if err != nil {
+		return err
+	}
+	return nil
+}
