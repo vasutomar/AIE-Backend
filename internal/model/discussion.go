@@ -25,8 +25,8 @@ type CreateDiscusstionRequest struct {
 }
 
 type Comment struct {
-	Username string
-	Comment  string
+	Username string `json:"username"`
+	Comment  string `json:"comment"`
 }
 
 type Discussion struct {
