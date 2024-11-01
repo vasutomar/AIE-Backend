@@ -29,12 +29,7 @@ func CommentOnDiscussion(c *gin.Context) {
 }
 
 func ToggleDiscussionLike(c *gin.Context) {
-	commentData := model.CommentRequest{}
 	discussion_id := c.Param("id")
-	if err := c.ShouldBindJSON(&commentData); err != nil {
-		utils.SetError(c, err)
-		return
-	}
 	user_id := utils.GetUserId(c)
 	if err := model.ToggleLike(user_id, discussion_id); err != nil {
 		utils.SetError(c, err)
@@ -45,12 +40,7 @@ func ToggleDiscussionLike(c *gin.Context) {
 }
 
 func ToggleDiscussionBookmark(c *gin.Context) {
-	commentData := model.CommentRequest{}
 	discussion_id := c.Param("id")
-	if err := c.ShouldBindJSON(&commentData); err != nil {
-		utils.SetError(c, err)
-		return
-	}
 	user_id := utils.GetUserId(c)
 	if err := model.ToggleBookmark(user_id, discussion_id); err != nil {
 		utils.SetError(c, err)
