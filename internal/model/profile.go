@@ -28,10 +28,10 @@ func CreateProfile(profile Profile) error {
 	return nil
 }
 
-func GetProfile(username string) (*Profile, error) {
-	log.Debug().Msgf("profile get started: %v", username)
+func GetProfile(userId string) (*Profile, error) {
+	log.Debug().Msgf("profile get started: %v", userId)
 	// Check if the user already exists
-	filter := bson.D{{Key: "username", Value: username}}
+	filter := bson.D{{Key: "user_id", Value: userId}}
 
 	var result bson.M
 	err := providers.DB.Collection("PROFILE").FindOne(context.Background(), filter).Decode(&result)
@@ -58,8 +58,8 @@ func GetProfile(username string) (*Profile, error) {
 
 // Note: Modifyable fields: Phone, Email, Exams
 // + add validations using regex for these fields before updating them.
-func UpdateProfile(username string, profile *Profile) error {
-	existingProfile, err := GetProfile(username)
+func UpdateProfile(userId string, profile *Profile) error {
+	existingProfile, err := GetProfile(userId)
 	if err != nil {
 		return err
 	}
@@ -82,7 +82,8 @@ func UpdateProfile(username string, profile *Profile) error {
 	}
 
 	if len(profile.Groups) > 0 && !slices.Equal(existingProfile.Groups, profile.Groups) {
-		existingProfile.Groups = profile.Groups
+		appendedGroups := append(existingProfile.Groups, profile.Groups[0])
+		existingProfile.Groups = appendedGroups
 		changesCount++
 	}
 
@@ -92,8 +93,8 @@ func UpdateProfile(username string, profile *Profile) error {
 
 	// existingProfile is now updated
 	updatedProfile := existingProfile
-	log.Debug().Msgf("profile update started: %v", username)
-	filter := bson.D{{Key: "username", Value: username}}
+	log.Debug().Msgf("profile update started: %v", userId)
+	filter := bson.D{{Key: "user_id", Value: userId}}
 	update := bson.D{{Key: "$set", Value: updatedProfile}}
 	updateOpts := options.Update().SetUpsert(false)
 

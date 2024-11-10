@@ -27,7 +27,7 @@ type CreateGroupRequest struct {
 	Exam       string   `json:"exam"`
 }
 
-func (group *CreateGroupRequest) Create(userId string) error {
+func (group *CreateGroupRequest) Create(userId string) (string, error) {
 	log.Debug().Msgf("Create group started: %v", group)
 
 	// Create group
@@ -44,9 +44,9 @@ func (group *CreateGroupRequest) Create(userId string) error {
 	log.Debug().Msgf("Creating group: %v", newGroup)
 	_, err := providers.DB.Collection("GROUPS").InsertOne(context.Background(), newGroup)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	log.Debug().Msgf("Group created successfully: %v", newGroup)
-	return nil
+	return newGroup.Group_id, nil
 }

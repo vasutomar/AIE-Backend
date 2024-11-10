@@ -9,8 +9,8 @@ import (
 
 // Note: Current with own's token, user will be able to get his/her + any other user's profile
 func GetProfile(c *gin.Context) {
-	username := c.Param("username")
-	profile, err := model.GetProfile(username)
+	userId := utils.GetUserId(c)
+	profile, err := model.GetProfile(userId)
 	if err != nil {
 		utils.SetError(c, err)
 		return

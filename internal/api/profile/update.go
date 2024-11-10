@@ -15,8 +15,8 @@ func UpdateProfile(c *gin.Context) {
 		return
 	}
 
-	username := c.Param("username")
-	err := model.UpdateProfile(username, profile)
+	userId := utils.GetUserId(c)
+	err := model.UpdateProfile(userId, profile)
 	if err != nil {
 		utils.SetError(c, err)
 		return
