@@ -1,0 +1,65 @@
+// Use DBML to define your database structure
+// Docs: https://dbml.dbdiagram.io/docs
+
+Table USERS {
+  _id integer 
+  username varchar
+  password varchar
+  firstname varchar
+  lastname varchar
+  userId varchar [primary key]
+}
+
+Table PROFILE {
+  _id varchar [primary key]
+  user_id varchar
+  phone number
+  email varchar
+  exams varchar[]
+  salt varchar
+  groups varchar[]
+}
+
+Ref user_profile: USERS.userId - PROFILE._id
+Ref user_groups: PROFILE.groups < GROUPS._id
+
+Table DISCUSSIONS {
+  _id varchar [ref: > USERS._id]
+  user_id varchar
+  discussion_id varchar [primary key]
+  title varchar
+  body varchar
+  like_count number
+  bookmark_count number
+  exam varchar
+  liked_by varchar[]
+  bookmarked_by varchar[]
+  comments varchar[]
+}
+
+enum question_object {
+  title 
+  questionId
+  type
+  options
+}
+
+Table ONBOARDING {
+  _id varchar [primary key]
+  questions question_object[]
+}
+
+Table GROUPS {
+  _id varchar 
+  group_id varchar [primary key]
+  admin varchar
+  members varchar[]
+  name varchar
+  color varchar
+  type varchar
+  exam varchar
+  documents varchar[] [note: 'This will contain the links to documents']
+}
+
+
+
