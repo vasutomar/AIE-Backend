@@ -48,6 +48,7 @@ func Signup(c *gin.Context) {
 		Email:  userData.Email,
 		Exams:  []string{},
 		Salt:   "",
+		Groups: []string{},
 	}
 
 	profileCreateError := model.CreateProfile(userProfile)

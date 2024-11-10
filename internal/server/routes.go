@@ -3,6 +3,7 @@ package server
 import (
 	"aie/internal/api/authentication"
 	"aie/internal/api/discussion"
+	"aie/internal/api/group"
 	"aie/internal/api/onboarding"
 	"aie/internal/api/profile"
 	"aie/internal/middlewares"
@@ -19,5 +20,6 @@ func registerRoutes(router *gin.Engine) {
 		onboarding.OnboardingAPIs(v1)
 		profile.ProfileAPIs(v1)
 		discussion.DiscussionAPIs(v1)
+		group.GroupAPIs(v1)
 	}
 }

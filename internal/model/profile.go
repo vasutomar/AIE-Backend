@@ -16,6 +16,7 @@ type Profile struct {
 	Email  string   `json:"email"`
 	Exams  []string `json:"exams"`
 	Salt   string   `json:"salt"`
+	Groups []string `json:"groups"`
 }
 
 func CreateProfile(profile Profile) error {
@@ -44,6 +45,7 @@ func GetProfile(username string) (*Profile, error) {
 		Email:  result["email"].(string),
 		Exams:  make([]string, 0),
 		Salt:   result["salt"].(string),
+		Groups: make([]string, 0),
 	}
 
 	exams := result["exams"].(bson.A)
@@ -76,6 +78,11 @@ func UpdateProfile(username string, profile *Profile) error {
 
 	if len(profile.Exams) > 0 && !slices.Equal(existingProfile.Exams, profile.Exams) {
 		existingProfile.Exams = profile.Exams
+		changesCount++
+	}
+
+	if len(profile.Groups) > 0 && !slices.Equal(existingProfile.Groups, profile.Groups) {
+		existingProfile.Groups = profile.Groups
 		changesCount++
 	}
 
