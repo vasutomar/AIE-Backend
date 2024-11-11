@@ -9,22 +9,24 @@ import (
 )
 
 type Group struct {
-	Group_id   string   `json:"group_id"`
-	Admin      string   `json:"admin"`
-	Members    []string `json:"members"`
-	Name       string   `json:"name"`
-	Color      string   `json:"color"`
-	Group_type string   `json:"group_type"`
-	Exam       string   `json:"exam"`
-	Documents  []string `json:"documents"`
+	Group_id    string   `json:"group_id"`
+	Admin       string   `json:"admin"`
+	Members     []string `json:"members"`
+	MemberCount int      `json:"member_count"`
+	Name        string   `json:"name"`
+	Color       string   `json:"color"`
+	Group_type  string   `json:"group_type"`
+	Exam        string   `json:"exam"`
+	Documents   []string `json:"documents"`
 }
 
 type CreateGroupRequest struct {
-	Members    []string `json:"members"`
-	Name       string   `json:"name"`
-	Color      string   `json:"color"`
-	Group_type string   `json:"group_type"`
-	Exam       string   `json:"exam"`
+	Members     []string `json:"members"`
+	Name        string   `json:"name"`
+	Color       string   `json:"color"`
+	Group_type  string   `json:"group_type"`
+	Exam        string   `json:"exam"`
+	MemberCount int      `json:"member_count"`
 }
 
 func (group *CreateGroupRequest) Create(userId string) (string, error) {
@@ -32,14 +34,15 @@ func (group *CreateGroupRequest) Create(userId string) (string, error) {
 
 	// Create group
 	newGroup := Group{
-		Group_id:   uuid.New().String(),
-		Admin:      userId,
-		Name:       group.Name,
-		Color:      group.Color,
-		Group_type: group.Group_type,
-		Members:    group.Members,
-		Exam:       group.Exam,
-		Documents:  make([]string, 0),
+		Group_id:    uuid.New().String(),
+		Admin:       userId,
+		Name:        group.Name,
+		Color:       group.Color,
+		Group_type:  group.Group_type,
+		Members:     group.Members,
+		Exam:        group.Exam,
+		Documents:   make([]string, 0),
+		MemberCount: group.MemberCount,
 	}
 	log.Debug().Msgf("Creating group: %v", newGroup)
 	_, err := providers.DB.Collection("GROUPS").InsertOne(context.Background(), newGroup)
