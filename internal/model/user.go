@@ -60,8 +60,17 @@ type UserTokenRequest struct {
 	Token string `json:"token"`
 }
 
+type TokenExamResponse struct {
+	Token string `json:"token"`
+	Exam  string `json:"exam"`
+}
+
 // TODO: Add timeouts to the context
-func (user *User) Signin() (string, error) {
+func (user *User) Signin() (TokenExamResponse, error) {
+	response := TokenExamResponse{
+		Token: "",
+		Exam:  "",
+	}
 	log.Debug().Msgf("user Signin started: %v", user)
 	user.hashPassword()
 	filter := bson.D{{Key: "username", Value: user.Username}, {Key: "password", Value: user.Password}}
@@ -74,7 +83,7 @@ func (user *User) Signin() (string, error) {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			exists = false
 		} else {
-			return "", err
+			return response, err
 		}
 	}
 
@@ -87,13 +96,16 @@ func (user *User) Signin() (string, error) {
 		}
 		jwt, err := tokenData.generateJWT()
 		if err != nil {
-			return "", err
+			return response, err
 		}
 
+		profile, _ := GetProfile(tokenData.UserId)
+		response.Exam = profile.Exams[0]
+		response.Token = jwt
 		log.Debug().Msgf("User signed in successfully: %v, jwt=%s", user, jwt)
-		return jwt, nil
+		return response, nil
 	}
-	return "", errors.New("User does not exist")
+	return response, errors.New("User does not exist")
 }
 
 // TODO: Add timeouts to the context

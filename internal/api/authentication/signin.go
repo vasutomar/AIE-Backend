@@ -18,12 +18,12 @@ func Signin(c *gin.Context) {
 	}
 
 	// This user will only have username and password fields set.
-	jwt, err := user.Signin()
+	responseData, err := user.Signin()
 	if err != nil {
 		log.Err(err).Msg("Error signin for user")
 		utils.SetResponse(c, 204, "Invalid username or password", nil)
 		return
 	}
 
-	utils.SetResponse(c, http.StatusOK, "User signed in successfully", jwt)
+	utils.SetResponse(c, http.StatusOK, "User signed in successfully", responseData)
 }
