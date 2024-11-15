@@ -8,7 +8,7 @@ import (
 
 // PrepareResponse - Prepare response for the API
 func SetResponse(c *gin.Context, statusCode int, message string, data interface{}) {
-	c.JSON(statusCode, gin.H{"message": message, "statusCode": statusCode, "data": data, "error": nil})
+	c.JSON(200, gin.H{"message": message, "statusCode": statusCode, "data": data, "error": nil})
 }
 
 func SetError(c *gin.Context, err error) {

@@ -8,10 +8,15 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+type Member struct {
+	Name string `json:"name"`
+	Id   string `json:"id"`
+}
+
 type Group struct {
 	Group_id    string   `json:"group_id"`
 	Admin       string   `json:"admin"`
-	Members     []string `json:"members"`
+	Members     []Member `json:"members"`
 	MemberCount int      `json:"member_count"`
 	Name        string   `json:"name"`
 	Color       string   `json:"color"`
@@ -21,7 +26,7 @@ type Group struct {
 }
 
 type CreateGroupRequest struct {
-	Members     []string `json:"members"`
+	Members     []Member `json:"members"`
 	Name        string   `json:"name"`
 	Color       string   `json:"color"`
 	Group_type  string   `json:"group_type"`
