@@ -6,6 +6,7 @@ import (
 	"aie/internal/api/group"
 	"aie/internal/api/onboarding"
 	"aie/internal/api/profile"
+	"aie/internal/api/sockets"
 	"aie/internal/middlewares"
 
 	"github.com/gin-gonic/gin"
@@ -21,5 +22,6 @@ func registerRoutes(router *gin.Engine) {
 		profile.ProfileAPIs(v1)
 		discussion.DiscussionAPIs(v1)
 		group.GroupAPIs(v1)
+		sockets.SocketAPIs(v1)
 	}
 }
