@@ -17,3 +17,14 @@ func GetProfile(c *gin.Context) {
 	}
 	utils.SetResponse(c, 201, "Profile fetched", profile)
 }
+
+func GetFriendsForUser(c *gin.Context) {
+	userId := utils.GetUserId(c)
+	friends, err := model.GetFriends(userId)
+	if err != nil {
+		utils.SetError(c, err)
+		return
+	}
+	utils.SetResponse(c, 201, "Friends fetched", friends)
+
+}

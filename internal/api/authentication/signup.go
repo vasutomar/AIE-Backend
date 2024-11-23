@@ -43,12 +43,15 @@ func Signup(c *gin.Context) {
 	}
 
 	userProfile := model.Profile{
-		UserId: user.UserId,
-		Phone:  userData.Phone,
-		Email:  userData.Email,
-		Exams:  []string{},
-		Salt:   "",
-		Groups: []string{},
+		UserId:     user.UserId,
+		Phone:      userData.Phone,
+		Email:      userData.Email,
+		Exams:      []string{},
+		Salt:       "",
+		Groups:     []string{},
+		Friends:    []string{},
+		ProfilePic: "",
+		Name:       userData.FirstName,
 	}
 
 	profileCreateError := model.CreateProfile(userProfile)

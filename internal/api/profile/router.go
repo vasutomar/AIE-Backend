@@ -11,6 +11,7 @@ func ProfileAPIs(router *gin.RouterGroup) {
 	{
 		r.GET("health", Health)
 		r.GET("", middlewares.AuthMiddleware(), GetProfile)
+		r.GET("friends", middlewares.AuthMiddleware(), GetFriendsForUser)
 		r.PATCH("", middlewares.AuthMiddleware(), UpdateProfile)
 	}
 }

@@ -100,7 +100,11 @@ func (user *User) Signin() (TokenExamResponse, error) {
 		}
 
 		profile, _ := GetProfile(tokenData.UserId)
-		response.Exam = profile.Exams[0]
+		if len(profile.Exams) > 0 {
+			response.Exam = profile.Exams[0]
+		} else {
+			response.Exam = ""
+		}
 		response.Token = jwt
 		log.Debug().Msgf("User signed in successfully: %v, jwt=%s", user, jwt)
 		return response, nil
