@@ -19,11 +19,13 @@ import (
 )
 
 type User struct {
-	Username  string `json:"username"`
-	Password  string `json:"password"`
-	FirstName string `json:"firstname"`
-	LastName  string `json:"lastname"`
-	UserId    string `json:"userid"`
+	Username  string    `json:"username"`
+	Password  string    `json:"password"`
+	FirstName string    `json:"firstname"`
+	LastName  string    `json:"lastname"`
+	UserId    string    `json:"userid"`
+	CreatedAt time.Time `bson:"created_at"`
+	UpdatedAt time.Time `bson:"updated_at"`
 }
 
 type UserToken struct {
@@ -136,6 +138,10 @@ func (user *User) Create() (string, error) {
 		user.UserId = uuid.New().String()
 		user.hashPassword()
 		log.Debug().Msgf("Creating user: %v", user)
+		if user.CreatedAt.IsZero() {
+			user.CreatedAt = time.Now()
+		}
+		user.UpdatedAt = time.Now()
 		_, err = providers.DB.Collection("USERS").InsertOne(context.Background(), user)
 		if err != nil {
 			return "", err

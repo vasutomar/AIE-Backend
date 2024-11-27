@@ -4,6 +4,7 @@ import (
 	"aie/internal/model"
 	"aie/internal/utils"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -52,6 +53,8 @@ func Signup(c *gin.Context) {
 		Friends:    []string{},
 		ProfilePic: "",
 		Name:       userData.FirstName,
+		UpdatedAt:  time.Now(),
+		CreatedAt:  time.Now(),
 	}
 
 	profileCreateError := model.CreateProfile(userProfile)
