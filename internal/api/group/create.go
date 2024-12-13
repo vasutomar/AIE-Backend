@@ -10,6 +10,7 @@ import (
 
 func CreateGroup(c *gin.Context) {
 	createGroupRequestData := model.CreateGroupRequest{}
+	responseData := make(map[string]string)
 
 	if err := c.ShouldBindJSON(&createGroupRequestData); err != nil {
 		utils.SetError(c, err)
@@ -23,8 +24,9 @@ func CreateGroup(c *gin.Context) {
 		profile := model.Profile{
 			Groups: []string{group_id},
 		}
+		responseData["group_id"] = group_id
 		err = model.UpdateProfile(userId, &profile)
 	}
 
-	utils.SetResponse(c, http.StatusOK, "Group created up successfully", nil)
+	utils.SetResponse(c, http.StatusOK, "Group created up successfully", responseData)
 }

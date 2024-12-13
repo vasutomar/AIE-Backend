@@ -91,3 +91,43 @@ func GetGroups(groupIds []string) ([]*Group, error) {
 
 	return fetchedGroups, nil
 }
+
+func GetGroup(groupId string) (*Group, error) {
+	log.Debug().Msgf("group get started: %v", groupId)
+	// Check if the user already exists
+	filter := bson.D{{Key: "group_id", Value: groupId}}
+
+	var result bson.M
+	err := providers.DB.Collection("GROUPS").FindOne(context.Background(), filter).Decode(&result)
+	if err != nil {
+		return nil, err
+	}
+
+	group := &Group{
+		Group_id:      result["group_id"].(string),
+		Admin:         result["admin"].(string),
+		Name:          result["name"].(string),
+		Group_type:    result["group_type"].(string),
+		Exam:          result["exam"].(string),
+		About:         result["about"].(string),
+		Group_picture: result["group_pic"].(string),
+	}
+
+	members := result["members"].(bson.A)
+	for _, member := range members {
+		parsedMember := member.(bson.M)
+		condensedMember := CondensedUser{
+			UserId:     parsedMember["user_id"].(string),
+			ProfilePic: parsedMember["profile_pic"].(string),
+			Name:       parsedMember["name"].(string),
+		}
+		group.Members = append(group.Members, condensedMember)
+	}
+
+	documents := result["documents"].(bson.A)
+	for _, document := range documents {
+		group.Documents = append(group.Documents, document.(string))
+	}
+
+	return group, nil
+}

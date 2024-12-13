@@ -20,3 +20,9 @@ func GetGroupsForUser(c *gin.Context) {
 	fetchedGroupsForUser, _ := model.GetGroups(groups)
 	utils.SetResponse(c, http.StatusOK, "Groups fetched successfully", fetchedGroupsForUser)
 }
+
+func GetGroup(c *gin.Context) {
+	groupId := c.Param("id")
+	fetchedGroup, _ := model.GetGroup(groupId)
+	utils.SetResponse(c, http.StatusOK, "Group fetched successfully", fetchedGroup)
+}
