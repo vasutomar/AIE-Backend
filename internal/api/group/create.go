@@ -17,6 +17,8 @@ func CreateGroup(c *gin.Context) {
 		return
 	}
 	userId := utils.GetUserId(c)
+	creatorProfile, _ := model.GetCondensedProfile(userId)
+	createGroupRequestData.Members = append(createGroupRequestData.Members, creatorProfile)
 	if group_id, err := createGroupRequestData.Create(userId); err != nil {
 		utils.SetError(c, err)
 		return
@@ -24,8 +26,10 @@ func CreateGroup(c *gin.Context) {
 		profile := model.Profile{
 			Groups: []string{group_id},
 		}
-		responseData["group_id"] = group_id
-		err = model.UpdateProfile(userId, &profile)
+		for _, member := range createGroupRequestData.Members {
+			responseData["group_id"] = group_id
+			_ = model.UpdateProfile(member.UserId, &profile)
+		}
 	}
 
 	utils.SetResponse(c, http.StatusOK, "Group created up successfully", responseData)

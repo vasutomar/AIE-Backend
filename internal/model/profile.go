@@ -282,3 +282,18 @@ func UpdateProfile(userId string, profile *Profile) error {
 
 	return nil
 }
+
+func GetCondensedProfile(userId string) (CondensedUser, error) {
+	existingProfile, err := GetProfile(userId)
+	if err != nil {
+		return CondensedUser{}, err
+	}
+
+	condensedUser := CondensedUser{
+		UserId:     existingProfile.UserId,
+		ProfilePic: existingProfile.ProfilePic,
+		Name:       existingProfile.Name,
+	}
+
+	return condensedUser, nil
+}
