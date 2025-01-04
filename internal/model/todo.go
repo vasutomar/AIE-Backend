@@ -3,11 +3,11 @@ package model
 import (
 	"aie/internal/providers"
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/rs/zerolog/log"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -22,10 +22,68 @@ type Todo struct {
 type CreateTodoRequest struct {
 	Title    string `json:"title"`
 	Deadline string `json:"deadline"`
-	State    string `json:"state"`
 }
 
-func GetTodoData(id string) (*Todo, error) {
+func GetTodoData(id string) ([]Todo, error) {
+	log.Debug().Msg("GetTodo started")
+
+	filter := bson.M{
+		"user_id": id,
+	}
+	// Query MongoDB
+	contextWithTimeout, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	cursor, err := providers.DB.Collection("TODO").Find(contextWithTimeout, filter)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(contextWithTimeout)
+
+	// Iterate through the documents and collect them
+	var results []bson.M
+	if err = cursor.All(contextWithTimeout, &results); err != nil {
+		return nil, err
+	}
+
+	fetchedTodos := make([]Todo, 0)
+	for _, result := range results {
+		todo := &Todo{}
+		bsonBytes, _ := bson.Marshal(result)
+		_ = bson.Unmarshal(bsonBytes, todo)
+		newTodo := Todo{
+			Title:    todo.Title,
+			Deadline: todo.Deadline,
+			State:    todo.State,
+			UserId:   todo.UserId,
+			Id:       todo.Id,
+		}
+		fetchedTodos = append(fetchedTodos, newTodo)
+	}
+
+	return fetchedTodos, nil
+}
+
+// TODO: Do field validation before calling this method
+func (todo *CreateTodoRequest) Create(userId string) error {
+	log.Debug().Msg("Create Todo started")
+	d := Todo{
+		UserId:   userId,
+		Title:    todo.Title,
+		State:    "not-started",
+		Deadline: todo.Deadline,
+		Id:       uuid.New().String(),
+	}
+
+	_, err := providers.DB.Collection("TODO").InsertOne(context.Background(), d)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func GetSingleTodo(id string) (*Todo, error) {
 	log.Debug().Msg("GetTodo started")
 	filter := bson.D{{Key: "todo_id", Value: id}}
 
@@ -42,33 +100,10 @@ func GetTodoData(id string) (*Todo, error) {
 	return todo, nil
 }
 
-// TODO: Do field validation before calling this method
-func (todo *CreateTodoRequest) Create(userId string) error {
-	log.Debug().Msg("Create Todo started")
-	d := Todo{
-		UserId:   userId,
-		Title:    todo.Title,
-		State:    todo.State,
-		Deadline: todo.Deadline,
-		Id:       uuid.New().String(),
-	}
-
-	_, err := providers.DB.Collection("TODO").InsertOne(context.Background(), d)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func UpdateTodo(todo *Todo, todoId string) error {
 	log.Debug().Msg("UpdateTodo started")
-	objectId, err := primitive.ObjectIDFromHex(todoId)
-	if err != nil {
-		return err
-	}
 
-	existingTodo, err := GetTodoData(todoId)
+	existingTodo, err := GetSingleTodo(todoId)
 	if err != nil {
 		return err
 	}
@@ -91,11 +126,11 @@ func UpdateTodo(todo *Todo, todoId string) error {
 		return nil
 	}
 
-	filter := bson.D{{Key: "_id", Value: objectId}}
-	update := bson.D{{Key: "$set", Value: todo}}
+	filter := bson.D{{Key: "todo_id", Value: todoId}}
+	update := bson.D{{Key: "$set", Value: existingTodo}}
 	updateOpts := options.Update().SetUpsert(false)
 
-	_, err = providers.DB.Collection("DISCUSSIONS").UpdateOne(context.Background(), filter, update, updateOpts)
+	_, err = providers.DB.Collection("TODO").UpdateOne(context.Background(), filter, update, updateOpts)
 	if err != nil {
 		return err
 	}
